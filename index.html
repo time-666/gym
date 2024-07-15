@@ -1,33 +1,40 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>我的网页</title>
-    <link rel="stylesheet" href="css/index.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>gym</title>
+  <link rel="stylesheet" href="css/index.css">
+  <!-- 引入 D3.js 库 -->
+  <script src="https://d3js.org/d3.v7.min.js"></script>
 </head>
 <body>
 <header>
-    <h1>欢迎来到我的健身房</h1>
+  <h1>欢迎来到我的健身房</h1>
 </header>
 <nav>
-    <ul>
-        <li><a href="#section1">部分 1</a></li>
-        <li><a href="#section2">部分 2</a></li>
-    </ul>
+  <ul>
+    <li><a href="#section1">部分 1</a></li>
+    <li><a href="#section2">部分 2</a></li>
+  </ul>
 </nav>
 <main>
-    <section id="section1">
-        <h2>1</h2>
-        <p>这是第一部分的内容。</p>
-    </section>
-    <section id="section2">
-        <h2>2</h2>
-        <p>这是第二部分的内容。</p>
-    </section>
+  <section id="section1">
+    <h2>1</h2>
+    <p>这是第一部分的内容。</p>
+    <div id="chart-container"></div> <!-- 用于放置图表的容器 -->
+  </section>
+  <section id="section2">
+    <h2>2</h2>
+    <p>这是第二部分的内容。</p>
+  </section>
 </main>
 <footer>
-    <p>这是页脚</p>
+  <p>这是页脚</p>
 </footer>
+
+<!-- 引入 JavaScript 文件 -->
+<script src="js/chart.js"></script>
+
 </body>
 </html>
