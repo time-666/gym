@@ -1,40 +1,273 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>gym</title>
-  <link rel="stylesheet" href="css/index.css">
-  <!-- 引入 D3.js 库 -->
-<!--   <script src="https://d3js.org/d3.v7.min.js"></script> -->
-  <script src="/d3js.org/d3.v7.min.js" charset="utf-8"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>gym</title>
+    <link rel="stylesheet" href="css/index.css">
+
+    <link href="tools/vis-network.min.css" rel="stylesheet">
+
+
+
+
 </head>
+
 <body>
+
+
 <header>
-  <h1>欢迎来到我的健身房</h1>
+    <h1>欢迎来到我的健身房</h1>
 </header>
-<nav>
-  <ul>
-    <li><a href="#section1">部分 1</a></li>
-    <li><a href="#section2">部分 2</a></li>
-  </ul>
-</nav>
+
 <main>
-  <section id="section1">
-    <h2>1</h2>
-    <p>这是第一部分的内容。</p>
-    <div id="chart-container"></div> <!-- 用于放置图表的容器 -->
-  </section>
-  <section id="section2">
-    <h2>2</h2>
-    <p>这是第二部分的内容。</p>
-  </section>
+
+    <section id="section1">
+        <p>会员打卡数据</p>
+        <div id="chart-container1"></div> <!-- 用于放置图表的容器 -->
+
+
+    </section>
+
+
+    <section id="section2">
+        <p>健身入门知识(点击节点了解详细信息)</p>
+
+        <div id="chart-container2" style="width: 100%; height: 600px; border: 1px solid lightgray;"></div>
+
+
+    </section>
+
+    <section id="section3">
+
+        <p>人体肌肉部位一览(鼠标悬停显示肌肉信息)</p>
+        <div id="chart-container3"></div>
+    </section>
+
 </main>
 <footer>
-  <p>这是页脚</p>
+    <h2>明天的你一定会感谢现在健身的自己</h2>
 </footer>
 
-<!-- 引入 JavaScript 文件 -->
+<script src="tools/d3.v7.min.js"></script>
+<!-- section1的d3脚本，如果需要的话 -->
+<script src="tools/vis-network.min.js"></script>
+<!-- section2的vis-network脚本 -->
+
+<script>
+    window.onload = function() {
+
+        const data = [
+            {date: new Date("2024-07-01"), color: '#f0f0f0', count: 5},
+            {date: new Date("2024-07-02"), color: '#ffffff', count: 8},
+            {date: new Date("2024-07-03"), color: '#ffc0cb', count: 3},
+            {date: new Date("2024-07-04"), color: '#f0f0f0', count: 7},
+            {date: new Date("2024-07-05"), color: '#ffffff', count: 2},
+            {date: new Date("2024-07-06"), color: '#ffc0cb', count: 6},
+            {date: new Date("2024-07-07"), color: '#f0f0f0', count: 4},
+            {date: new Date("2024-07-08"), color: '#ffffff', count: 9},
+            {date: new Date("2024-07-09"), color: '#ffc0cb', count: 1},
+            {date: new Date("2024-07-10"), color: '#f0f0f0', count: 8},
+            {date: new Date("2024-07-11"), color: '#ffffff', count: 5},
+            {date: new Date("2024-07-12"), color: '#ffc0cb', count: 3},
+            {date: new Date("2024-07-13"), color: '#f0f0f0', count: 6},
+            {date: new Date("2024-07-14"), color: '#ffffff', count: 7},
+            {date: new Date("2024-07-15"), color: '#ffc0cb', count: 2},
+            {date: new Date("2024-07-16"), color: '#f0f0f0', count: 4},
+            {date: new Date("2024-07-17"), color: '#ffffff', count: 9},
+            {date: new Date("2024-07-18"), color: '#ffc0cb', count: 1},
+            {date: new Date("2024-07-19"), color: '#f0f0f0', count: 5},
+            {date: new Date("2024-07-20"), color: '#ffffff', count: 6},
+            {date: new Date("2024-07-21"), color: '#ffc0cb', count: 3},
+            {date: new Date("2024-07-22"), color: '#f0f0f0', count: 7},
+            {date: new Date("2024-07-23"), color: '#ffffff', count: 4},
+            {date: new Date("2024-07-24"), color: '#ffc0cb', count: 8},
+            {date: new Date("2024-07-25"), color: '#f0f0f0', count: 2},
+            {date: new Date("2024-07-26"), color: '#ffffff', count: 6},
+            {date: new Date("2024-07-27"), color: '#ffc0cb', count: 5},
+            {date: new Date("2024-07-28"), color: '#f0f0f0', count: 3},
+            {date: new Date("2024-07-29"), color: '#ffffff', count: 7},
+            {date: new Date("2024-07-30"), color: '#ffc0cb', count: 9},
+        ];
+
+
+        // 创建 SVG 元素
+        const svg = d3.select('#chart-container1')
+            .append('svg')
+            .attr('width', '100%')
+            .attr('height', data.length * 30 + 100) // 根据数据量调整高度
+            .attr('preserveAspectRatio', 'xMidYMid');
+
+
+
+        const colorScale = d3.scaleOrdinal(d3.schemeCategory10); // 或者其他适合的颜色方案
+
+// 绘制日历的函数
+        function drawCalendar(data) {
+            data.forEach((d, i) => {
+                const date = d.date;
+                const year = date.getFullYear();
+                const month = date.getMonth();
+                const day = date.getDate();
+
+                // 计算格子的位置和大小
+                const width = 100;
+                const height = 100;
+                const x = (i % 7) * width;
+                const y = Math.floor(i / 7) * height;
+
+
+// 创建日期格子
+                const rect = svg.append('rect')
+                    .attr('class', 'calendar-cell')
+                    .attr('width', width)
+                    .attr('height', height)
+                    .attr('x', x)
+                    .attr('y', y)
+                    .attr('fill', d => colorScale(i))
+                    .on('mouseover', function(event, d) { // 添加鼠标悬停事件
+                        // 放大格子
+                        d3.select(this).transition()
+                            .attr('width', width * 1.5) // 格子放大
+                            .attr('height', height * 1.5);
+
+                        // 显示文本
+                        svg.append('text')
+                            .attr('class', 'calendar-count') // 定义一个新的文本类
+                            .attr('x', x + width / 2)
+                            .attr('y', y + height * 1.5) // 文本位置稍上移
+                            .text(`打卡数：${d.count}`)
+                            .attr('font-size', '12px') // 设置文本字体大小
+                            .attr('text-anchor', 'middle'); // 文字居中
+                    })
+                    .on('mouseout', function(event, d) { // 添加鼠标移出事件
+                        // 缩小格子
+                        d3.select(this).transition()
+                            .attr('width', width)
+                            .attr('height', height);
+
+                        // 移除文本
+                        d3.selectAll('.calendar-count').remove(); // 移除刚才添加的文本
+                    });
+
+
+                // 绘制日期文本
+                svg.append('text')
+                    .attr('class', 'calendar-date')
+                    .attr('x', x + width / 2)
+                    .attr('y', y + height / 2)
+                    .text(`${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`)
+                    .attr('font-size', '10px');
+            });
+        }
+
+// 调用函数绘制日历
+        drawCalendar(data);}
+
+
+
+</script>
+<script>
+
+    var nodes = new vis.DataSet([
+        {id: 1, label: '训练', group: 1},
+        {id: 2, label: '营养补充', group: 1},
+        {id: 3, label: '休息', group: 1},
+        {
+            id: 4,
+            label: '增肌训练',
+            group: 2,
+            url: 'https://www.bilibili.com/video/BV1Hk4y187jF/?spm_id_from=333.788.recommend_more_video.-1&vd_source=6f22607d8296d4c007588da4560410d7'
+        },
+        {
+            id: 5,
+            label: '减脂训练',
+            group: 2,
+            url: 'https://www.bilibili.com/video/BV1AM411r7z3/?spm_id_from=333.999.0.0&vd_source=6f22607d8296d4c007588da4560410d7'
+        },
+        {
+            id: 6,
+            label: '功能性训练',
+            group: 2,
+            url: 'https://space.bilibili.com/2100737396/channel/collectiondetail?sid=1061455'
+        },
+        {
+            id: 7,
+            label: '减脂饮食',
+            group: 2,
+            url: 'https://www.bilibili.com/video/BV1Ng41137qq/?spm_id_from=333.999.0.0&vd_source=6f22607d8296d4c007588da4560410d7'
+        },
+        {
+            id: 8,
+            label: '增肌饮食',
+            group: 2,
+            url: 'https://www.bilibili.com/video/BV1ev411w7bs/?spm_id_from=333.337.search-card.all.click'
+        },
+        {id: 9, label: '平衡膳食', group: 2, url: 'https://www.cn-healthcare.com/articlewm/20210627/content-1236834.html'},
+        {
+            id: 10,
+            label: '充足的睡眠',
+            group: 2,
+            url: 'https://www.bilibili.com/video/BV1nw411y7Bx/?spm_id_from=333.337.search-card.all.click&vd_source=6f22607d8296d4c007588da4560410d7'
+        },
+        {
+            id: 11,
+            label: '拉伸和放松',
+            group: 2,
+            url: 'https://www.bilibili.com/video/BV1dV411a7aV/?spm_id_from=333.337.search-card.all.click&vd_source=6f22607d8296d4c007588da4560410d7'
+        },
+        {
+            id: 12,
+            label: '习惯养成',
+            group: 2,
+            url: 'https://www.bilibili.com/video/BV1jJ41117eM/?spm_id_from=333.337.search-card.all.click&vd_source=6f22607d8296d4c007588da4560410d7'
+        }
+    ]);
+
+    var edges = new vis.DataSet([
+        {from: 1, to: 2},
+        {from: 2, to: 3},
+        {from: 3, to: 1},
+        {from: 4, to: 1},
+        {from: 5, to: 1},
+        {from: 6, to: 1},
+        {from: 7, to: 2},
+        {from: 8, to: 2},
+        {from: 9, to: 2},
+        {from: 10, to: 3},
+        {from: 11, to: 3},
+        {from: 12, to: 3},
+    ]);
+
+
+    var data = {
+        nodes: nodes,
+        edges: edges
+    };
+
+    var options = {
+        // 在这里定义网络图的其他选项
+    };
+
+    var container = document.getElementById('chart-container2');
+    var network = new vis.Network(container, data, options);
+
+    // 绑定点击事件到网络图容器
+    // 绑定点击事件到网络图容器
+    network.on('click', function (params) {
+        if (params.nodes.length > 0) { // 确保点击的是节点
+            var nodeId = params.nodes[0];
+            var node = nodes.get(nodeId);
+            // 检查节点是否属于组1
+            if (node.group === 2) {
+                // 打开节点的URL
+                window.open(node.url, '_blank');
+            }
+        }
+    });
+
+</script>
+
 <script src="js/chart.js"></script>
 
 </body>
